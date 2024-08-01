@@ -1,15 +1,85 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My First Phaser Game</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.14.0/dist/phaser.min.js"></script>
     <script src="game.js"></script>
     <script src="server.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f8ff;
+        color: #333;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+      }
+
+      h1 {
+        font-size: 2.5em;
+        color: #3498db;
+        margin: 20px 0;
+      }
+
+      #game {
+        margin: 20px auto;
+        width: 80%;
+        max-width: 800px;
+        height: 500px;
+        border: 2px solid #3498db;
+        border-radius: 10px;
+        background-color: #fff;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      p {
+        font-size: 1.2em;
+        color: #333;
+        margin: 20px;
+      }
+
+      .rules {
+        background-color: #3498db;
+        color: #fff;
+        border-radius: 5px;
+        padding: 20px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+        max-width: 600px;
+        margin: 20px auto;
+        text-align: left;
+      }
+
+      .rules ul {
+        list-style-type: disc;
+        padding-left: 20px;
+      }
+
+      .rules li {
+        margin: 10px 0;
+      }
+    </style>
   </head>
   <body>
-    <h1>My First Phaser Game</h1>
+    <h1>Chaser</h1>
     <div id="game"></div>
-    <p>Use the arrow keys to move around and collect the coins.</p>
+    <div class="rules">
+      <p><strong>Game Rules:</strong></p>
+      <ul>
+        <li>
+          <strong>Objective:</strong> Collect as many coins as possible while
+          avoiding obstacles.
+        </li>
+        <li>
+          <strong>Movement:</strong> Use the arrow keys to move the player
+          character around the screen.
+        </li>
+        <li>
+          <strong>Game Over:</strong> The game ends when the player collides
+          with an obstacle. Restart by clicking the "Restart" button.
+        </li>
+      </ul>
+    </div>
   </body>
 </html>

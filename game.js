@@ -4,14 +4,77 @@ class mainScene extends Phaser.Scene {
   }
 
   preload() {
+    this.load.image("background", "assets/b1.webp");
     this.load.image("player", "assets/mc.png");
     this.load.image("coin", "assets/coin.png");
     this.load.image("obstacle", "assets/obstacle.png");
   }
 
   create() {
-    this.createGameUI();
+    // Add background image
+    this.add
+      .image(0, 0, "background")
+      .setOrigin(0)
+      .setScale(window.innerWidth / 800, 500 / 400);
+
+    // Create the start text
+    this.createStartText();
+
+    // Create game over UI
     this.createGameOverUI();
+  }
+
+  createStartText() {
+    this.startText = this.add
+      .text(this.cameras.main.centerX / 2, this.cameras.main.centerY, "Start", {
+        font: "40px Arial",
+        fill: "#fff",
+        stroke: "#000",
+        strokeThickness: 6,
+        shadow: {
+          offsetX: 2,
+          offsetY: 2,
+          color: "#000",
+          blur: 4,
+          stroke: true,
+          fill: true,
+        },
+        backgroundColor: "#00ff00", // Green background
+      })
+      .setOrigin(0.5)
+      .setInteractive()
+      .setPadding(20)
+      .setStyle({
+        backgroundColor: "#00ff00",
+        fill: "#fff",
+        fontSize: "40px",
+        fontFamily: "Arial",
+        fontWeight: "bold",
+      });
+
+    // Add hover effects
+    this.startText.on("pointerover", () => {
+      this.startText.setStyle({
+        fill: "#ff0",
+        backgroundColor: "#00aa00",
+      });
+    });
+
+    this.startText.on("pointerout", () => {
+      this.startText.setStyle({
+        fill: "#fff",
+        backgroundColor: "#00ff00",
+      });
+    });
+
+    // Add click event to the "Start" text
+    this.startText.on("pointerdown", () => this.startGame());
+  }
+
+  startGame() {
+    // Hide the start text and show game elements
+    this.startText.setVisible(false);
+    this.createGameUI();
   }
 
   createGameUI() {
@@ -69,7 +132,10 @@ class mainScene extends Phaser.Scene {
   }
 
   update() {
-    if (this.gameOverShown) return; // Prevent player movement if game is over
+    if (this.gameOverShown || !this.player) return;
+
+    // Debugging: Print the player's position
+    // console.log(`Player position: x=${this.player.x}, y=${this.player.y}`);
 
     if (this.arrow.right.isDown) {
       this.player.x += 3;
@@ -85,7 +151,7 @@ class mainScene extends Phaser.Scene {
   }
 
   hit() {
-    if (this.gameOverShown) return; // Prevent hitting coin if game is over
+    if (this.gameOverShown) return;
 
     this.coin.setPosition(
       Phaser.Math.Between(100, 600),
@@ -111,7 +177,7 @@ class mainScene extends Phaser.Scene {
   }
 
   spawnObstacle() {
-    if (this.gameOverShown) return; // Prevent spawning obstacles if game is over
+    if (this.gameOverShown) return;
 
     let obstacle = this.obstacles.create(
       800,
@@ -122,7 +188,7 @@ class mainScene extends Phaser.Scene {
       obstacle.body.velocity.x = -200;
       obstacle.setCollideWorldBounds(true);
       obstacle.body.onWorldBounds = true;
-      obstacle.body.world.on("worldbounds", function (body) {
+      this.physics.world.on("worldbounds", function (body) {
         if (body.gameObject === obstacle) {
           obstacle.destroy();
         }
@@ -131,60 +197,84 @@ class mainScene extends Phaser.Scene {
   }
 
   gameOver() {
-    if (this.gameOverShown) return; // Prevent multiple game over triggers
+    if (this.gameOverShown) return;
 
     this.gameOverShown = true;
     this.score = 0;
     this.scoreText.setText("score: 0");
 
-    this.obstacleTimer.remove(false); // Stop the obstacle spawning timer
-    this.obstacles.clear(true, true); // Clear all existing obstacles
+    this.obstacleTimer.remove(false);
+    this.obstacles.clear(true, true);
 
-    // Show game over UI
     this.gameOverText.setVisible(true);
     this.restartText.setVisible(true);
   }
 
   createGameOverUI() {
-    // Create game over text
+    // Create the "Game Over" text
     this.gameOverText = this.add
       .text(
-        this.cameras.main.centerX,
+        this.cameras.main.centerX / 2,
         this.cameras.main.centerY - 50,
         "Game Over",
-        { font: "40px Arial", fill: "#fff" }
+        {
+          font: "40px Arial",
+          fill: "#ff0000",
+          stroke: "#000",
+          strokeThickness: 6,
+          shadow: {
+            offsetX: 2,
+            offsetY: 2,
+            color: "#000",
+            blur: 4,
+            stroke: true,
+            fill: true,
+          },
+        }
       )
       .setOrigin(0.5)
       .setVisible(false);
 
-    // Create restart text
+    // Create the "Restart" text
     this.restartText = this.add
       .text(
-        this.cameras.main.centerX,
+        this.cameras.main.centerX / 2,
         this.cameras.main.centerY + 50,
         "Restart",
-        { font: "30px Arial", fill: "#ff0000", backgroundColor: "#000" }
+        {
+          font: "30px Arial",
+          fill: "#00ff00",
+          stroke: "#000",
+          strokeThickness: 6,
+          shadow: {
+            offsetX: 2,
+            offsetY: 2,
+            color: "#000",
+            blur: 4,
+            stroke: true,
+            fill: true,
+          },
+          backgroundColor: "#000",
+        }
       )
       .setOrigin(0.5)
-      .setInteractive()
+      .setPadding(10)
+      .setInteractive() // Make it interactive
       .setVisible(false);
 
-    // Handle restart functionality
+    // Add click event to the "Restart" text
     this.restartText.on("pointerdown", () => this.restartGame());
   }
 
   restartGame() {
-    // Hide game over UI
     this.gameOverText.setVisible(false);
     this.restartText.setVisible(false);
 
-    // Reset game state and UI
     this.resetGameState();
-    this.createGameUI();
+    this.startGame(); // Restart the game
   }
 
   resetGameState() {
-    // Clear existing obstacles and remove obstacle timer
     if (this.obstacles) {
       this.obstacles.clear(true, true);
     }
@@ -193,14 +283,15 @@ class mainScene extends Phaser.Scene {
       this.obstacleTimer.remove(false);
     }
 
-    // Reset player and coin positions
     if (this.player) {
-      this.player.setPosition(100, 100);
+      this.player.destroy();
     }
 
     if (this.coin) {
-      this.coin.setPosition(300, 300);
+      this.coin.destroy();
     }
+
+    this.gameOverShown = false;
   }
 }
 
